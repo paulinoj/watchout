@@ -33,6 +33,7 @@ function init() {
     .attr('cx', function(d){ return d.x; } )
     .attr('cy', function(d){ return d.y; } )
     .attr('r', 10)
+    .attr('recentCollision', false);
 //    .attr('transform', 'translate(40,40)')
 }
 init();
@@ -70,11 +71,11 @@ function update(data){
       var xDistance = d.x - originalX;
       var yDistance = d.y - originalY;
 
-      var recentCollision = false;
-
       return function(t) {
         var newX = (t * xDistance) + originalX;
         var newY = (t * yDistance) + originalY;
+
+
 
         currentNode.attr('cx', newX);
         currentNode.attr('cy', newY);
@@ -82,11 +83,11 @@ function update(data){
         if(Math.sqrt(Math.pow(Number(currentNode.attr('cx')) - player[0].x, 2) +
            Math.pow(Number(currentNode.attr('cy')) - player[0].y, 2)) < 20) {
 
-          if (!recentCollision) {
+          if (currentNode.attr('recentCollision') === 'false') {
             highscore.text(Math.max(highscore.text(), current.text()));
             current.text(0);
             collisions.text(+collisions.text()+1);
-            recentCollision = true;
+            currentNode.attr('recentCollision', true);
             // originalX = Number(currentNode.attr('cx'));
             // originalY = Number(currentNode.attr('cy'));
 
@@ -95,7 +96,7 @@ function update(data){
           }
         }
         else {
-          recentCollision = false;
+          currentNode.attr('recentCollision', false);
         }
       };
     }).each('end', function(){update(enemies)});
@@ -104,7 +105,7 @@ function update(data){
 // setInterval(function(){
 //    update(enemies);
 //  },5000);
-update(enemies)
+update(enemies);
 
 var drag = d3.behavior.drag()
   .on("drag", function(d){
