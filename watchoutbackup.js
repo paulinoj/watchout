@@ -64,28 +64,57 @@ function update(data){
  
       var currentNode = d3.select(this);
 
-      var originalX = Number(currentNode.attr('cx'));
-      var originalY = Number(currentNode.attr('cy'));
+      var cx = currentNode.attr('cx');
+      var cy = currentNode.attr('cy');
+      var xDistance = d.x - cx;
+      var yDistance = d.y - cy;
 
-      var xDistance = d.x - originalX;
-      var yDistance = d.y - originalY; 
+      currentNode.attr('direction', 1);
 
       return function(t) {        
-        var newX = (t * 25 * xDistance) + originalX;
-        var newY = (t * 25 * yDistance) + originalY;
 
-        currentNode.attr('cx', newX);
-        currentNode.attr('cy', newY);
+        // cx = currentNode.attr('cx');
+        // cy = currentNode.attr('cy');
+        var newX = (t/duration) * xDistance;
+        var newY = (t/duration) * yDistane;
 
-        if(Math.sqrt(Math.pow(Number(currentNode.attr('cx')) - player[0].x, 2) + 
-           Math.pow(Number(currentNode.attr('cy')) - player[0].y, 2)) < 20) {
-          highscore.text(Math.max(highscore.text(), current.text()));
-          current.text(0);
-          collisions.text(+collisions.text()+1);
+        if (Number(currentNode.attr('direction')) === 1)
+        {
+          if (cx < width && cy < height) {
+            currentNode.attr('cx', Number(cx) + 1);
+            currentNode.attr('cy', Number(cy) + 1);
+          }
+          else
+          {
+            // currentNode.attr('cx', Number(cx) - 1);
+            // currentNode.attr('cy', Number(cy) - 1);
+            currentNode.attr('direction', 0);
+          }
         }
+        else
+        {
+          if (cx > 0 && cy > 0) {
+            currentNode.attr('cx', Number(cx) - 1);
+            currentNode.attr('cy', Number(cy) - 1);
+            console.log(currentNode.attr('class'));
+            console.log("CX:  ", cx);
+            console.log("CY:  ", cy);
+
+          }
+          else
+          {            
+            // currentNode.attr('cx', Number(cx) + 1);
+            // currentNode.attr('cy', Number(cy) + 1);
+            currentNode.attr('direction', 1);
+          }
+        }
+
       };
     });
+
 }
+
+
 
 setInterval(function(){
    update(enemies);
@@ -119,7 +148,20 @@ var highscore = d3.select('.high').select('span');
 var current = d3.select('.current').select('span');
 var collisions = d3.select('.collisions').select('span');
 
+function detectCollision() {
+  enemies.forEach(function(enemy) {
+    if(Math.sqrt(Math.pow(enemy.x - player[0].x, 2) + Math.pow(enemy.y - player[0].y, 2)) < 20) {
+      highscore.text(Math.max(highscore.text(), current.text()));
+      current.text(0);
+      collisions.text(+collisions.text()+1);
+    }
+  });
+}
+
+d3.timer(detectCollision);
+
+/*
 setInterval(function(){
   current.text(+current.text()+1);
 },50);
-
+*/
