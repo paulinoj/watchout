@@ -29,9 +29,10 @@ function init() {
     .data(enemies)
     .enter()
     .append('circle')
+    .attr('class', 'enemy')
     .attr('cx', function(d){ return d.x; } )
     .attr('cy', function(d){ return d.y; } )
-    .attr('r', 10);
+    .attr('r', 10)
 //    .attr('transform', 'translate(40,40)')
 }
 init();
@@ -49,7 +50,9 @@ function update(data){
     .attr('cy', function(d){ return d.y; } );
 }
 
-setInterval(function(){update(enemies);},1000);
+setInterval(function(){
+  update(enemies);
+},1000);
 
 var drag = d3.behavior.drag()
   .on("drag", function(d){
@@ -75,8 +78,21 @@ svg.selectAll('.player')
 
 var highscore = d3.select('.high').select('span');
 var current = d3.select('.current').select('span');
-var collisions = d3.select('.collions').select('span');
+var collisions = d3.select('.collisions').select('span');
+
+function detectCollision() {
+  enemies.forEach(function(enemy) {
+    if(Math.sqrt(Math.pow(enemy.x - player[0].x, 2) + Math.pow(enemy.y - player[0].y, 2)) < 20) {
+      highscore.text(Math.max(highscore.text(), current.text()));
+      current.text(0);
+      collisions.text(+collisions.text()+1);
+    }
+  });
+}
+
+d3.timer(detectCollision);
+
 setInterval(function(){
   current.text(+current.text()+1);
-},100);
+},50);
 
